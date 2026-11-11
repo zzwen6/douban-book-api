@@ -10,6 +10,29 @@ const { CACHE_DB_PATH } = require('./cache');
 
 const Router = require('@koa/router');
 const { updateSearchResultToCache, updateBookInfoToCacheByIsbn } = require('./cache');
+
+function serializeErr(err) {
+  const statusCode = err && (err.statusCode || err.response?.statusCode);
+  const upstreamBody = err && (err.response?.body || err.body);
+  let snippet = undefined;
+  if (typeof upstreamBody === 'string' && upstreamBody.length) {
+    const title = /<title>([^<]*)<\/title>/i.exec(upstreamBody);
+    snippet = {
+      length: upstreamBody.length,
+      title: title ? title[1].trim() : undefined,
+      head: upstreamBody.slice(0, 400),
+    };
+  }
+  console.error('[douban-book-api]', err && err.stack || err);
+  if (snippet) console.error('[douban-book-api] upstream', statusCode, snippet.title, snippet.length);
+  return {
+    name: err && err.name,
+    message: (err && err.message) || String(err),
+    statusCode,
+    upstream: snippet,
+  };
+}
+
 const router = new Router();
 
 router.get('/', (ctx) => {
@@ -36,7 +59,7 @@ router.get('/search', async (ctx) => {
       ctx.status = 500;
       ctx.body = {
         success: false,
-        message: err,
+        message: serializeErr(err),
       };
     }
   }
@@ -56,7 +79,7 @@ router.get('/subject/:id', async (ctx) => {
     ctx.response.status = 500;
     ctx.body = {
       success: false,
-      message: err,
+      message: serializeErr(err),
     };
   }
 });
@@ -75,7 +98,7 @@ router.get('/isbn/:isbn', async (ctx) => {
     ctx.response.status = 500;
     ctx.body = {
       success: false,
-      message: err,
+      message: serializeErr(err),
     };
   }
 });
@@ -102,7 +125,7 @@ router.post('/search', async (ctx) => {
       ctx.status = 500;
       ctx.body = {
         success: false,
-        message: err,
+        message: serializeErr(err),
       };
     }
   }
@@ -122,7 +145,7 @@ router.post('/book', async (ctx) => {
     ctx.response.status = 500;
     ctx.body = {
       success: false,
-      message: err,
+      message: serializeErr(err),
     };
   }
 });

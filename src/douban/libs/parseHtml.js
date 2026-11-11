@@ -195,11 +195,15 @@ function getReviews($) {
 
     const rUsefulCountSpanEle = cheerioMainBdDivEle.find('span[id^="r-useful_count"]')[0];
     const rUselessCountSpanEle = cheerioMainBdDivEle.find('span[id^="r-useless_count"]')[0];
-    review.useful_count = parseInt(rUsefulCountSpanEle.children[0].data.remove('\n', ' ') || '0');
-    review.useless_count = parseInt(rUselessCountSpanEle.children[0].data.remove('\n', ' ') || '0');
+    const upBtn = cheerioMainBdDivEle.find('a.action-btn.up')[0];
+    const downBtn = cheerioMainBdDivEle.find('a.action-btn.down')[0];
+    const usefulText = rUsefulCountSpanEle?.children[0]?.data || (upBtn && cheerioReviewEle.find('a.action-btn.up').text()) || '0';
+    const uselessText = rUselessCountSpanEle?.children[0]?.data || (downBtn && cheerioReviewEle.find('a.action-btn.down').text()) || '0';
+    review.useful_count = parseInt(String(usefulText).replace(/[^0-9]/g, '') || '0', 10);
+    review.useless_count = parseInt(String(uselessText).replace(/[^0-9]/g, '') || '0', 10);
 
     const replyAEle = cheerioMainBdDivEle.find('a.reply')[0];
-    review.reply_count = parseInt(replyAEle.children[0].data.slice(0, -2));
+    review.reply_count = parseInt(String(replyAEle?.children[0]?.data || '0').replace(/[^0-9]/g, '') || '0', 10);
     return review;
   });
 }
@@ -216,7 +220,11 @@ function parseHTML(html, id) {
   const linkingData = getLinkingData($);
 
   if (!id) {
-    id = /douban\.com\/book\/subject\/(\d+)\//.exec(html)[1];
+    const m = /book\.douban\.com\/subject\/(\d+)/.exec(html) || /douban\.com\/book\/subject\/(\d+)/.exec(html);
+    if (!m) {
+      throw new Error('cannot find douban subject id in html, title=' + ($('title').text() || '').trim());
+    }
+    id = m[1];
   }
   return {
     title: getTitle($),
@@ -228,7 +236,7 @@ function parseHTML(html, id) {
     translator: toArray(info.译者) || [],
     publish: info.出版社 || [],
     producer: info.出品方 || '',
-    publishDate: info.出版年 || '',
+    publishDate: info.出版年 || info.出版时间 || '',
     pages: info.页数 || 0,
     price: info.定价 || '',
     binding: info.装帧 || '',
