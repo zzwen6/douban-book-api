@@ -25,7 +25,7 @@ const data = {
     '坍缩/172'
   ],
   original_texts: [],
-  labels: [],
+  labels: ['刘慈欣', '科幻', '中国', '2022', '美苏冷战', '科幻小说', '战争', '小说', '军事', '为中华民族之崛起'],
   cover_url: 'https://img2.doubanio.com/view/subject/l/public/s33979473.jpg',
   url: 'https://book.douban.com/subject/35576094/',
   rating: {

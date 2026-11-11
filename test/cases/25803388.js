@@ -293,7 +293,7 @@ const data = {
     '15.5　谢谢阅读！　301'
   ],
   original_texts: [],
-  labels: [],
+  labels: ['Haskell', '函数式编程', '编程', '计算机', '编程语言', '程序设计', 'programming', '计算机科学', '科普'],
   cover_url: 'https://img9.doubanio.com/view/subject/l/public/s27195536.jpg',
   url: 'https://book.douban.com/subject/25803388/',
   rating: {

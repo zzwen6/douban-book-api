@@ -69,7 +69,7 @@ const data = {
     '参考文献'
   ],
   original_texts: [],
-  labels: [],
+  labels: ['传记', '游戏', 'DOOM', '卡马克', '编程', '计算机', '游戏引擎', '人物', '游戏制作', 'ID'],
   cover_url: 'https://img9.doubanio.com/view/subject/l/public/s1488795.jpg',
   url: 'https://book.douban.com/subject/1152971/',
   rating: {

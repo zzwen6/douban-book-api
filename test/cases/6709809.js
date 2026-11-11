@@ -50,7 +50,7 @@ const data = {
     '参考文献'
   ],
   original_texts: [],
-  labels: [],
+  labels: ['时间管理', '思维', '心理学', '方法论', '刘未鹏', '个人成长', '暗时间', '心智', '成长', '个人管理'],
   cover_url: 'https://img9.doubanio.com/view/subject/l/public/s6586365.jpg',
   url: 'https://book.douban.com/subject/6709809/',
   rating: {

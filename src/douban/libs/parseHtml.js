@@ -85,8 +85,46 @@ function getOriginalTexts($) {
   return [...$('ul.blockquote-list>li>figure')].map(figureEle => figureEle.children[0].data.remove('\n            ').slice(0, -1));
 }
 
-function getLabels($) {
-  return [...$('div#db-tags-section.blank20>div.indent>span>a')].map(aEle => aEle.children[0].data);
+function uniqueLabels(labels) {
+  const seen = new Set();
+  const result = [];
+  labels.forEach(label => {
+    const text = (label || '').trim();
+    const key = text.toLowerCase();
+    if (!text || seen.has(key)) return;
+    seen.add(key);
+    result.push(text);
+  });
+  return result;
+}
+
+function unescapeJsString(str) {
+  return str
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/\\x([0-9a-fA-F]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/\\(.)/g, '$1');
+}
+
+// 豆瓣改版后图书页不再渲染「豆瓣成员常用的标签」区块（#db-tags-section），
+// 但页面底部广告脚本里的 criteria 字符串仍然带着常用标签：
+//   criteria = '7:余华|7:人性|...|3:/subject/4913064/'
+// 其中 "7:" 前缀表示标签。优先读旧 DOM 区块（兼容旧页面/缓存 HTML），否则读 criteria。
+function getLabelsFromCriteria(html) {
+  if (!html) return [];
+  const match = html.match(/criteria\s*=\s*(['"])((?:\\.|(?!\1).)*)\1/);
+  if (!match) return [];
+  return unescapeJsString(match[2])
+    .split('|')
+    .filter(item => item.startsWith('7:'))
+    .map(item => item.slice(2));
+}
+
+function getLabels($, html) {
+  const domLabels = [...$('#db-tags-section a, div.tags-body a.tag, div#db-tags-section span a')]
+    .map(aEle => $(aEle).text());
+  const labels = uniqueLabels(domLabels);
+  if (labels.length > 0) return labels;
+  return uniqueLabels(getLabelsFromCriteria(html));
 }
 
 function getCoverUrl($) {
@@ -246,7 +284,7 @@ function parseHTML(html, id) {
     author_intro: getAuthorIntro($),
     catalog: getCatalog($, id),
     original_texts: getOriginalTexts($),
-    labels: getLabels($),
+    labels: getLabels($, html),
     cover_url: getCoverUrl($),
     url: `https://book.douban.com/subject/${id}/`,
     rating: getRating($),
@@ -257,6 +295,8 @@ function parseHTML(html, id) {
 }
 
 module.exports = parseHTML;
+module.exports.getLabelsFromCriteria = getLabelsFromCriteria;
+module.exports.uniqueLabels = uniqueLabels;
 
 if (require.main === module) {
   const html = require('fs').readFileSync('.cache/html/id/26807576.html', {encoding: 'utf8'});

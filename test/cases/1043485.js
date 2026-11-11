@@ -44,7 +44,7 @@ const data = {
     '后 记'
   ],
   original_texts: [],
-  labels: [],
+  labels: ['莫言', '小说', '檀香刑', '中国文学', '当代文学', '魔幻现实主义', '中国', '长篇小说', '文学', '当代'],
   cover_url: 'https://img3.doubanio.com/view/subject/l/public/s1073110.jpg',
   url: 'https://book.douban.com/subject/1043485/',
   rating: {
