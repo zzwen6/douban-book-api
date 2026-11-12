@@ -212,7 +212,7 @@ $RECYCLE.BIN/
 # .pnp.*
 
 yarn.lock
-package-lock.json
+# package-lock.json 纳入版本库，供 Docker 里 npm ci 使用
 pnpm-lock.yaml
 
 # End of https://www.toptal.com/developers/gitignore/api/node,windows,macos,linux,yarn
